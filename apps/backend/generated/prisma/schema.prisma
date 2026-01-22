@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  stores    Store[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Store {
+  id           String     @id @default(uuid())
+  name         String
+  subdomain    String     @unique
+  customDomain String?
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages        Page[]
+  products     Product[]
+  categories   Category[]
+  orders       Order[]
+  settings     Json       @default("{}")
+  theme        Json       @default("{}")
+  isPublished  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model Page {
+  id        String   @id @default(uuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  slug      String
+  title     String
+  blocks    Json     @default("[]")
+  isHome    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+}
+
+model Product {
+  id          String    @id @default(uuid())
+  storeId     String
+  store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  name        String
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  images      String[]  @default([])
+  inventory   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([storeId])
+  @@index([categoryId])
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  storeId   String
+  store     Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  storeId   String
+  store     Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  items     Json
+  total     Decimal     @db.Decimal(10, 2)
+  status    OrderStatus @default(PENDING)
+  customer  Json
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([storeId])
+}
+
+model Template {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  thumbnail   String?
+  pages       Json
+  theme       Json
+  category    String
+  isPremium   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}

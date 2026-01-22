@@ -1,14 +1,37 @@
 {
-  "name": "${PROJECT_NAME}",
+  "name": "shop-builder-platform",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "private": true,
+  "description": "Platform for creating online stores with drag-and-drop editor",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "dev:host": "turbo run dev --filter=@shop-builder/host",
+    "dev:editor": "turbo run dev --filter=@shop-builder/editor",
+    "dev:storefront": "turbo run dev --filter=@shop-builder/storefront",
+    "dev:backend": "turbo run dev --filter=@shop-builder/backend",
+    "build:host": "turbo run build --filter=@shop-builder/host",
+    "build:editor": "turbo run build --filter=@shop-builder/editor",
+    "build:storefront": "turbo run build --filter=@shop-builder/storefront",
+    "build:backend": "turbo run build --filter=@shop-builder/backend",
+    "db:generate": "turbo run db:generate --filter=@shop-builder/backend",
+    "db:push": "turbo run db:push --filter=@shop-builder/backend",
+    "db:migrate": "turbo run db:migrate --filter=@shop-builder/backend",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
   },
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.0"
   },
-  "private": true
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "npm@10.0.0"
 }
