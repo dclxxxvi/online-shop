@@ -43,6 +43,11 @@ export class StoresController {
     return this.storesService.findByIdPublic(id);
   }
 
+  @Get('subdomain/:subdomain')
+  async findBySubdomain(@Param('subdomain') subdomain: string) {
+    return this.storesService.findBySubdomain(subdomain);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   async create(@Body() dto: CreateStoreDto, @Request() req: any) {

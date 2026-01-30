@@ -6,6 +6,9 @@ declare module 'editor/App' {
 }
 
 declare module 'storefront/App' {
-  const App: React.ComponentType;
+  interface StorefrontAppProps {
+    subdomain?: string;
+  }
+  const App: React.ComponentType<StorefrontAppProps>;
   export default App;
 }

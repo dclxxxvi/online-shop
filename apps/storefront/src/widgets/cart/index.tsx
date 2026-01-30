@@ -134,7 +134,9 @@ export const CartWidget: React.FC = () => {
               <span className="text-gray-600">Итого:</span>
               <span className="text-xl font-bold">{formatPrice(getTotal())}</span>
             </div>
-            <Button className="w-full mb-2">Оформить заказ</Button>
+            <Button className="w-full mb-2" onClick={() => useCartStore.getState().setCheckoutOpen(true)}>
+              Оформить заказ
+            </Button>
             <button
               onClick={clearCart}
               className="w-full text-sm text-gray-500 hover:text-gray-700"

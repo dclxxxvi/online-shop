@@ -6,6 +6,8 @@ import { Spinner } from '@shop-builder/shared';
 const DashboardPage = lazy(() => import('@pages/dashboard'));
 const LoginPage = lazy(() => import('@pages/login'));
 const RegisterPage = lazy(() => import('@pages/register'));
+const ProductsPage = lazy(() => import('@pages/products'));
+const OrdersPage = lazy(() => import('@pages/orders'));
 
 // Lazy load remote apps
 const EditorApp = lazy(() => import('editor/App'));
@@ -45,6 +47,26 @@ export const RouterProvider: React.FC = () => {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Products page */}
+        <Route
+          path="/stores/:storeId/products"
+          element={
+            <ProtectedRoute>
+              <ProductsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Orders page */}
+        <Route
+          path="/stores/:storeId/orders"
+          element={
+            <ProtectedRoute>
+              <OrdersPage />
             </ProtectedRoute>
           }
         />

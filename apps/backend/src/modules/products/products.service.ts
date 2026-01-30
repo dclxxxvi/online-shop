@@ -62,6 +62,7 @@ export class ProductsService {
         images: dto.images || [],
         inventory: dto.inventory || 0,
         categoryId: dto.categoryId,
+        isActive: dto.isActive,
       },
     });
   }

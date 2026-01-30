@@ -16,7 +16,22 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Allow localhost and any subdomain of localhost
+      const allowedPatterns = [
+        /^http:\/\/localhost(:\d+)?$/,
+        /^http:\/\/[\w-]+\.localhost(:\d+)?$/,
+        /^http:\/\/[\w-]+\.127\.0\.0\.1\.nip\.io(:\d+)?$/,
+      ];
+
+      const isAllowed = allowedPatterns.some((pattern) => pattern.test(origin));
+      callback(null, isAllowed);
+    },
     credentials: true,
   });
 

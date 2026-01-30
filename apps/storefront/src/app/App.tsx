@@ -1,8 +1,6 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Block, BlockType } from '@shop-builder/shared';
+import React, { useEffect, useMemo } from 'react';
+import { Block } from '@shop-builder/shared';
 import { useStoreData } from '@entities/store/model/storeDataStore';
-import { useCartStore } from '@entities/cart/model/cartStore';
 import { Spinner } from '@shop-builder/shared';
 
 // Block renderers
@@ -11,15 +9,46 @@ import { FooterBlock } from '@widgets/footer';
 import { ProductGridBlock } from '@widgets/product-grid';
 import { CartWidget } from '@widgets/cart';
 
-export const App: React.FC = () => {
-  const { storeId } = useParams<{ storeId: string }>();
-  const { store, page, isLoading, error, fetchStoreData } = useStoreData();
+// Checkout
+import { CheckoutForm, OrderSuccess } from '@features/checkout';
+
+// Extract storeId from URL path (e.g., /preview/abc123 -> abc123)
+const getStoreIdFromPath = (): string | null => {
+  const path = window.location.pathname;
+  const match = path.match(/\/(?:preview|storefront)\/([^/]+)/);
+  return match ? match[1] : null;
+};
+
+interface AppProps {
+  subdomain?: string;
+}
+
+export const App: React.FC<AppProps> = ({ subdomain }) => {
+  const storeId = useMemo(() => getStoreIdFromPath(), []);
+  const { store, page, isLoading, error, fetchStoreData, fetchStoreBySubdomain } = useStoreData();
 
   useEffect(() => {
-    if (storeId) {
+    if (subdomain) {
+      // Load by subdomain (e.g., myshop.localhost:3000)
+      fetchStoreBySubdomain(subdomain);
+    } else if (storeId) {
+      // Load by storeId from URL (e.g., /preview/abc123)
       fetchStoreData(storeId);
     }
-  }, [storeId, fetchStoreData]);
+  }, [subdomain, storeId, fetchStoreData, fetchStoreBySubdomain]);
+
+  // No way to identify the store
+  if (!subdomain && !storeId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Магазин не найден</h1>
+          <p className="text-gray-600">ID магазина не указан в URL</p>
+          <p className="text-gray-400 text-sm mt-2">URL: {window.location.pathname}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -41,11 +70,20 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen" style={getThemeStyles(store.theme)}>
-      {page.blocks.map((block) => (
-        <BlockRenderer key={block.id} block={block} store={store} />
-      ))}
-    </div>
+    <>
+      <div className="min-h-screen" style={getThemeStyles(store.theme)}>
+        {page.blocks.map((block) => (
+          <BlockRenderer key={block.id} block={block} store={store} />
+        ))}
+      </div>
+
+      {/* Cart sidebar widget - always rendered */}
+      <CartWidget />
+
+      {/* Checkout dialogs */}
+      <CheckoutForm />
+      <OrderSuccess />
+    </>
   );
 };
 
@@ -106,7 +144,8 @@ const BlockRenderer: React.FC<BlockRendererProps> = ({ block, store }) => {
         return <ProductGridBlock props={props} storeId={store.id} />;
 
       case 'cart':
-        return <CartWidget />;
+        // Cart is rendered as a global sidebar widget
+        return null;
 
       case 'text':
         return (

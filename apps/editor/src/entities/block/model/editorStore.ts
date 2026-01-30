@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { Block, BlockType, generateId } from '@shop-builder/shared';
+import { Block, BlockType, generateId, apiClient, Page, Store } from '@shop-builder/shared';
 
 interface ActiveBlock {
   id: string;
@@ -14,6 +14,15 @@ interface EditorState {
   activeBlock: ActiveBlock | null;
   isDirty: boolean;
 
+  // API state
+  storeId: string | null;
+  store: Store | null;
+  pageSlug: string;
+  isLoading: boolean;
+  isSaving: boolean;
+  isPublishing: boolean;
+  error: string | null;
+
   // Actions
   setActiveBlock: (block: ActiveBlock | null) => void;
   selectBlock: (id: string | null) => void;
@@ -24,6 +33,13 @@ interface EditorState {
   duplicateBlock: (id: string) => void;
   setBlocks: (blocks: Block[]) => void;
   clearSelection: () => void;
+
+  // API actions
+  setStoreId: (storeId: string) => void;
+  setPageSlug: (slug: string) => void;
+  loadPage: () => Promise<void>;
+  savePage: () => Promise<boolean>;
+  publishStore: () => Promise<Store | null>;
 }
 
 const getDefaultPropsForType = (type: BlockType): Record<string, unknown> => {
@@ -128,6 +144,15 @@ export const useEditorStore = create<EditorState>()(
     activeBlock: null,
     isDirty: false,
 
+    // API state
+    storeId: null,
+    store: null,
+    pageSlug: 'home',
+    isLoading: false,
+    isSaving: false,
+    isPublishing: false,
+    error: null,
+
     setActiveBlock: (block) =>
       set((state) => {
         state.activeBlock = block;
@@ -217,5 +242,109 @@ export const useEditorStore = create<EditorState>()(
       set((state) => {
         state.selectedBlockId = null;
       }),
+
+    // API actions
+    setStoreId: (storeId) =>
+      set((state) => {
+        state.storeId = storeId;
+      }),
+
+    setPageSlug: (slug) =>
+      set((state) => {
+        state.pageSlug = slug;
+      }),
+
+    loadPage: async () => {
+      const { storeId, pageSlug } = get();
+      if (!storeId) {
+        set((state) => {
+          state.error = 'Store ID is not set';
+        });
+        return;
+      }
+
+      set((state) => {
+        state.isLoading = true;
+        state.error = null;
+      });
+
+      try {
+        const [store, page] = await Promise.all([
+          apiClient.get<Store>(`/stores/${storeId}`),
+          apiClient.get<Page>(`/stores/${storeId}/pages/${pageSlug}`),
+        ]);
+        set((state) => {
+          state.store = store;
+          state.blocks = page.blocks || [];
+          state.isDirty = false;
+          state.isLoading = false;
+        });
+      } catch (error: any) {
+        set((state) => {
+          state.error = error?.response?.data?.message || 'Failed to load page';
+          state.isLoading = false;
+        });
+      }
+    },
+
+    savePage: async () => {
+      const { storeId, pageSlug, blocks } = get();
+      if (!storeId) {
+        set((state) => {
+          state.error = 'Store ID is not set';
+        });
+        return false;
+      }
+
+      set((state) => {
+        state.isSaving = true;
+        state.error = null;
+      });
+
+      try {
+        await apiClient.patch(`/stores/${storeId}/pages/${pageSlug}`, { blocks });
+        set((state) => {
+          state.isDirty = false;
+          state.isSaving = false;
+        });
+        return true;
+      } catch (error: any) {
+        set((state) => {
+          state.error = error?.response?.data?.message || 'Failed to save page';
+          state.isSaving = false;
+        });
+        return false;
+      }
+    },
+
+    publishStore: async () => {
+      const { storeId } = get();
+      if (!storeId) {
+        set((state) => {
+          state.error = 'Store ID is not set';
+        });
+        return null;
+      }
+
+      set((state) => {
+        state.isPublishing = true;
+        state.error = null;
+      });
+
+      try {
+        const updatedStore = await apiClient.post<Store>(`/stores/${storeId}/publish`);
+        set((state) => {
+          state.store = updatedStore;
+          state.isPublishing = false;
+        });
+        return updatedStore;
+      } catch (error: any) {
+        set((state) => {
+          state.error = error?.response?.data?.message || 'Failed to publish store';
+          state.isPublishing = false;
+        });
+        return null;
+      }
+    },
   }))
 );

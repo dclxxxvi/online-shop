@@ -74,13 +74,27 @@ export const StoreList: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button
                     size="sm"
                     className="flex-1"
                     onClick={() => navigate(`/editor/${store.id}`)}
                   >
-                    Редактировать
+                    Редактор
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/stores/${store.id}/products`)}
+                  >
+                    Товары
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/stores/${store.id}/orders`)}
+                  >
+                    Заказы
                   </Button>
                   <Button
                     variant="outline"

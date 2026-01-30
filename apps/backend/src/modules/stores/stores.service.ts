@@ -48,7 +48,19 @@ export class StoresService {
 
   async findByIdPublic(id: string) {
     const store = await this.prisma.store.findUnique({
-      where: { id, isPublished: true },
+      where: { id },
+    });
+
+    if (!store) {
+      throw new NotFoundException('Магазин не найден');
+    }
+
+    return store;
+  }
+
+  async findBySubdomain(subdomain: string) {
+    const store = await this.prisma.store.findUnique({
+      where: { subdomain },
     });
 
     if (!store) {

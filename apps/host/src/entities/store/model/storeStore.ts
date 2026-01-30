@@ -16,7 +16,7 @@ interface StoreState {
   setCurrentStore: (store: Store | null) => void;
 }
 
-export const useStoreStore = create<StoreState>((set, get) => ({
+export const useStoreStore = create<StoreState>((set) => ({
   stores: [],
   currentStore: null,
   isLoading: false,

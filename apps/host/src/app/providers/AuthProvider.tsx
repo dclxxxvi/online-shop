@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAuthStore } from '@entities/user/model/authStore';
 import { apiClient } from '@shop-builder/shared';
 
@@ -8,12 +8,16 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { checkAuth, isLoading } = useAuthStore();
+  const initialized = useRef(false);
 
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
     // Initialize API client with stored tokens
     apiClient.loadTokensFromStorage();
     checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   if (isLoading) {
     return (

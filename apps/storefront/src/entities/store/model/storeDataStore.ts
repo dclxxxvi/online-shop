@@ -7,6 +7,7 @@ interface StoreDataState {
   isLoading: boolean;
   error: string | null;
   fetchStoreData: (storeId: string, pageSlug?: string) => Promise<void>;
+  fetchStoreBySubdomain: (subdomain: string, pageSlug?: string) => Promise<void>;
 }
 
 export const useStoreData = create<StoreDataState>((set) => ({
@@ -25,6 +26,20 @@ export const useStoreData = create<StoreDataState>((set) => ({
       set({ store, page, isLoading: false });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Ошибка загрузки магазина';
+      set({ error: message, isLoading: false });
+    }
+  },
+
+  fetchStoreBySubdomain: async (subdomain: string, pageSlug = 'home') => {
+    set({ isLoading: true, error: null });
+    try {
+      // First get store by subdomain
+      const store = await apiClient.get<Store>(`/stores/subdomain/${subdomain}`);
+      // Then get the page
+      const page = await apiClient.get<Page>(`/stores/${store.id}/pages/${pageSlug}`);
+      set({ store, page, isLoading: false });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Магазин не найден';
       set({ error: message, isLoading: false });
     }
   },
