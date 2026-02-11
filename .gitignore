@@ -17,9 +17,13 @@ out-tsc
 .env.*.local
 
 # IDE
+.idea
 .vscode/*
 *.swp
 *.swo
+
+# Claude Code
+.claude
 
 # OS
 .DS_Store
