@@ -15,7 +15,7 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label }) => (
       cn(
         'flex items-center gap-3 px-4 py-2 rounded-lg transition-colors',
         isActive
-          ? 'bg-blue-50 text-blue-600'
+          ? 'bg-emerald-50 text-emerald-600'
           : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
       )
     }

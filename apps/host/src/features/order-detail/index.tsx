@@ -6,6 +6,8 @@ import {
   DialogTitle,
   Button,
   Spinner,
+  Badge,
+  type BadgeProps,
 } from '@shop-builder/shared';
 import type { Order, OrderStatus } from '@shop-builder/shared';
 import { useOrderStore } from '@entities/order';
@@ -25,12 +27,12 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   CANCELLED: 'Отменён',
 };
 
-const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  CONFIRMED: 'bg-blue-100 text-blue-800',
-  SHIPPED: 'bg-purple-100 text-purple-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
+const STATUS_VARIANTS: Record<OrderStatus, BadgeProps['variant']> = {
+  PENDING: 'warning',
+  CONFIRMED: 'info',
+  SHIPPED: 'secondary',
+  DELIVERED: 'success',
+  CANCELLED: 'destructive',
 };
 
 const STATUS_FLOW: OrderStatus[] = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];
@@ -83,9 +85,9 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             Заказ #{order.id.slice(0, 8)}
-            <span className={`px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[order.status]}`}>
+            <Badge variant={STATUS_VARIANTS[order.status]}>
               {STATUS_LABELS[order.status]}
-            </span>
+            </Badge>
           </DialogTitle>
         </DialogHeader>
 

@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useMemo } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import { RouterProvider } from './providers/RouterProvider';
 import { AuthProvider } from './providers/AuthProvider';
 import { Spinner } from '@shop-builder/shared';
@@ -49,9 +50,11 @@ export const App: React.FC = () => {
   // If subdomain detected, render storefront directly
   if (subdomain) {
     return (
-      <Suspense fallback={<LoadingFallback />}>
-        <StorefrontApp subdomain={subdomain} />
-      </Suspense>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingFallback />}>
+          <StorefrontApp subdomain={subdomain} />
+        </Suspense>
+      </BrowserRouter>
     );
   }
 

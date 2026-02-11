@@ -10,6 +10,7 @@ import {
   Card,
   CardContent,
   Spinner,
+  Badge,
   formatPrice,
   AlertDialog,
   AlertDialogAction,
@@ -182,20 +183,14 @@ const ProductsPage: React.FC = () => {
                         <div className="text-sm text-gray-900">{product.inventory} шт.</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            product.isActive
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
+                        <Badge variant={product.isActive ? 'success' : 'muted'}>
                           {product.isActive ? 'Активен' : 'Скрыт'}
-                        </span>
+                        </Badge>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => handleEditProduct(product)}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
+                          className="text-emerald-600 hover:text-emerald-900 mr-4"
                         >
                           Изменить
                         </button>

@@ -1,5 +1,7 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
-import { DndContext, DragOverlay, closestCenter, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
+import { useNavigate } from 'react-router-dom';
+import { DndContext, DragOverlay, closestCenter, DragStartEvent, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { EditorCanvas } from '@widgets/editor-canvas';
 import { BlocksPanel } from '@widgets/blocks-panel';
 import { PropertiesPanel } from '@widgets/properties-panel';
@@ -15,6 +17,7 @@ const getStoreIdFromPath = (): string | null => {
 };
 
 export const App: React.FC = () => {
+  const navigate = useNavigate();
   const storeId = useMemo(() => getStoreIdFromPath(), []);
   const { toast } = useToast();
   const {
@@ -33,6 +36,15 @@ export const App: React.FC = () => {
     isPublishing,
     error,
   } = useEditorStore();
+
+  // Drag sensors with activation constraint to prevent accidental drags
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   // Load page on mount
   useEffect(() => {
@@ -87,7 +99,7 @@ export const App: React.FC = () => {
               href={`/preview/${store.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline font-medium"
+              className="text-emerald-600 hover:underline font-medium"
             >
               {publicUrl}
             </a>
@@ -137,16 +149,25 @@ export const App: React.FC = () => {
   }
 
   return (
-    <DndContext collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      modifiers={[snapCenterToCursor]}
+    >
       <div className="h-screen flex flex-col bg-gray-100">
         {/* Editor Header */}
         <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <a href="/" className="text-gray-600 hover:text-gray-900">
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-600 hover:text-gray-900"
+            >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-            </a>
+            </button>
             <h1 className="text-lg font-semibold">{store?.name || 'Редактор магазина'}</h1>
             {store && (
               <span
@@ -167,7 +188,7 @@ export const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => window.open(`/preview/${storeId}`, '_blank')}
+              onClick={() => navigate(`/preview/${storeId}`)}
               className="px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100"
             >
               Предпросмотр
@@ -175,7 +196,7 @@ export const App: React.FC = () => {
             <button
               onClick={handleSave}
               disabled={isSaving || !isDirty}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving && <Spinner size="sm" />}
               {isSaving ? 'Сохранение...' : 'Сохранить'}
@@ -205,9 +226,12 @@ export const App: React.FC = () => {
       </div>
 
       {/* Drag Overlay */}
-      <DragOverlay>
+      <DragOverlay dropAnimation={{
+        duration: 300,
+        easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+      }}>
         {activeBlock ? (
-          <div className="drag-overlay">
+          <div className="cursor-grabbing">
             <BlockPreview type={activeBlock.type} />
           </div>
         ) : null}

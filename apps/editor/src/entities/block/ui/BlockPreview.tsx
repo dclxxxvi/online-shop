@@ -122,9 +122,9 @@ const blockNames: Record<BlockType, string> = {
 
 export const BlockPreview: React.FC<BlockPreviewProps> = ({ type }) => {
   return (
-    <div className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-lg">
-      <div className="text-blue-600">{blockIcons[type]}</div>
-      <span className="font-medium text-gray-900">{blockNames[type]}</span>
+    <div className="flex items-center gap-3 px-4 py-3 bg-white border-2 border-emerald-500 rounded-xl shadow-2xl shadow-emerald-500/30 transform rotate-2">
+      <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">{blockIcons[type]}</div>
+      <span className="font-semibold text-gray-900">{blockNames[type]}</span>
     </div>
   );
 };

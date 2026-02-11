@@ -1,6 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useEditorStore, blockNames } from '@entities/block';
-import { Input, Button, Label, Checkbox } from '@shop-builder/shared';
+import {
+  Input,
+  Button,
+  Label,
+  Checkbox,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  apiClient,
+  Product,
+  PaginatedResponse,
+  formatPrice,
+} from '@shop-builder/shared';
 
 export const PropertiesPanel: React.FC = () => {
   const { blocks, selectedBlockId, updateBlock, deleteBlock } = useEditorStore();
@@ -8,7 +22,7 @@ export const PropertiesPanel: React.FC = () => {
 
   if (!selectedBlock) {
     return (
-      <aside className="w-80 bg-white border-l border-gray-200 p-4">
+      <aside className="w-80 bg-gray-50 border-l border-gray-200 p-4">
         <div className="text-center text-gray-400 py-12">
           <svg className="w-12 h-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -31,18 +45,23 @@ export const PropertiesPanel: React.FC = () => {
   };
 
   return (
-    <aside className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-      <div className="p-4 border-b border-gray-200">
+    <aside className="w-80 bg-gray-50 border-l border-gray-200 overflow-y-auto">
+      <div className="p-4 border-b border-gray-200 bg-white">
         <h2 className="font-semibold text-gray-900">{blockNames[selectedBlock.type]}</h2>
         <p className="text-sm text-gray-500">Настройки блока</p>
       </div>
 
       <div className="p-4 space-y-4">
         {/* Render props based on block type */}
-        <PropsEditor block={selectedBlock} onPropChange={handlePropChange} />
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Контент</h3>
+          <div className="space-y-4">
+            <PropsEditor block={selectedBlock} onPropChange={handlePropChange} />
+          </div>
+        </div>
 
         {/* Style Settings */}
-        <div className="pt-4 border-t border-gray-200">
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
           <h3 className="text-sm font-medium text-gray-900 mb-3">Отступы</h3>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
@@ -81,7 +100,7 @@ export const PropertiesPanel: React.FC = () => {
         </div>
 
         {/* Delete Block */}
-        <div className="pt-4 border-t border-gray-200">
+        <div className="pt-2">
           <Button
             variant="destructive"
             className="w-full"
@@ -178,6 +197,17 @@ const PropsEditor: React.FC<PropsEditorProps> = ({ block, onPropChange }) => {
         </div>
       );
 
+    case 'product-card':
+      return (
+        <ProductCardProps
+          productId={props.productId as string | null}
+          showPrice={props.showPrice as boolean}
+          showRating={props.showRating as boolean}
+          showAddToCart={props.showAddToCart as boolean}
+          onPropChange={onPropChange}
+        />
+      );
+
     case 'product-grid':
       return (
         <>
@@ -225,4 +255,104 @@ const PropsEditor: React.FC<PropsEditorProps> = ({ block, onPropChange }) => {
         </p>
       );
   }
+};
+
+// Product Card Props Editor with product select
+interface ProductCardPropsEditorProps {
+  productId: string | null;
+  showPrice: boolean;
+  showRating: boolean;
+  showAddToCart: boolean;
+  onPropChange: (key: string, value: unknown) => void;
+}
+
+const ProductCardProps: React.FC<ProductCardPropsEditorProps> = ({
+  productId,
+  showPrice,
+  showRating,
+  showAddToCart,
+  onPropChange,
+}) => {
+  const { storeId } = useEditorStore();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!storeId) return;
+
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await apiClient.get<PaginatedResponse<Product>>(
+          `/stores/${storeId}/products`,
+          { limit: 100 }
+        );
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Failed to load products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [storeId]);
+
+  return (
+    <>
+      <div className="space-y-1">
+        <Label htmlFor="productId">Товар</Label>
+        <Select
+          value={productId || '__none__'}
+          onValueChange={(value) => onPropChange('productId', value === '__none__' ? null : value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={isLoading ? 'Загрузка...' : 'Выберите товар'} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">
+              <span className="text-gray-500">Первый товар (демо)</span>
+            </SelectItem>
+            {products.map((product) => (
+              <SelectItem key={product.id} value={product.id}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate">{product.name}</span>
+                  <span className="text-xs text-gray-500 shrink-0">
+                    {formatPrice(product.price)}
+                  </span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {products.length === 0 && !isLoading && (
+          <p className="text-xs text-amber-600">Нет товаров в магазине</p>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="showPrice"
+          checked={showPrice !== false}
+          onCheckedChange={(checked) => onPropChange('showPrice', checked)}
+        />
+        <Label htmlFor="showPrice">Показывать цену</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="showRating"
+          checked={showRating !== false}
+          onCheckedChange={(checked) => onPropChange('showRating', checked)}
+        />
+        <Label htmlFor="showRating">Показывать рейтинг</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="showAddToCart"
+          checked={showAddToCart !== false}
+          onCheckedChange={(checked) => onPropChange('showAddToCart', checked)}
+        />
+        <Label htmlFor="showAddToCart">Кнопка "В корзину"</Label>
+      </div>
+    </>
+  );
 };

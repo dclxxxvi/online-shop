@@ -41,5 +41,8 @@ coverage
 # Prisma
 apps/backend/prisma/*.db
 
+# Uploads
+uploads
+
 # Misc
 *.tsbuildinfo

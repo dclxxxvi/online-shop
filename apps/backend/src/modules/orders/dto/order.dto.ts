@@ -1,5 +1,5 @@
-import { IsArray, IsObject, IsEnum, ValidateNested, IsString, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsArray, IsObject, IsEnum, ValidateNested, IsString, IsNumber, IsOptional } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import { OrderStatus } from '@prisma/client';
 
 class OrderItemDto {
@@ -9,12 +9,14 @@ class OrderItemDto {
   @IsString()
   name: string;
 
+  @Transform(({ value }) => typeof value === 'string' ? parseFloat(value) : value)
   @IsNumber()
   price: number;
 
   @IsNumber()
   quantity: number;
 
+  @IsOptional()
   @IsString()
   image?: string;
 }
@@ -23,6 +25,7 @@ class OrderCustomerDto {
   @IsString()
   email: string;
 
+  @IsOptional()
   @IsString()
   phone?: string;
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreStore } from '@entities/store';
 import { CreateStoreModal } from '@features/create-store';
-import { Button, Card, CardContent, Spinner } from '@shop-builder/shared';
+import { Button, Card, CardContent, Spinner, Badge } from '@shop-builder/shared';
 
 export const StoreList: React.FC = () => {
   const navigate = useNavigate();
@@ -63,15 +63,9 @@ export const StoreList: React.FC = () => {
                     <h3 className="font-semibold text-gray-900">{store.name}</h3>
                     <p className="text-sm text-gray-500">{store.subdomain}.shopbuilder.com</p>
                   </div>
-                  <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      store.isPublished
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
+                  <Badge variant={store.isPublished ? 'success' : 'warning'}>
                     {store.isPublished ? 'Опубликован' : 'Черновик'}
-                  </span>
+                  </Badge>
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
@@ -102,6 +96,19 @@ export const StoreList: React.FC = () => {
                     onClick={() => navigate(`/preview/${store.id}`)}
                   >
                     Просмотр
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const port = window.location.port ? `:${window.location.port}` : '';
+                      window.open(`http://${store.subdomain}.localhost${port}`, '_blank');
+                    }}
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Поддомен
                   </Button>
                 </div>
               </CardContent>

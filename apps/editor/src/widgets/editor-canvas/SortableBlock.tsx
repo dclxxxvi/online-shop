@@ -12,7 +12,7 @@ interface SortableBlockProps {
 
 export const SortableBlock: React.FC<SortableBlockProps> = ({ block, isSelected, onSelect }) => {
   const { deleteBlock, duplicateBlock } = useEditorStore();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({
     id: block.id,
     data: {
       type: block.type,
@@ -20,9 +20,14 @@ export const SortableBlock: React.FC<SortableBlockProps> = ({ block, isSelected,
     },
   });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: transition || 'transform 200ms cubic-bezier(0.25, 1, 0.5, 1)',
+  };
+
+  const handleBlockClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSelect();
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -38,60 +43,78 @@ export const SortableBlock: React.FC<SortableBlockProps> = ({ block, isSelected,
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      onClick={onSelect}
-      className={`relative group border-2 rounded-lg transition-all ${
-        isDragging ? 'opacity-50 z-50' : ''
-      } ${isSelected ? 'border-blue-500 ring-2 ring-blue-200' : 'border-transparent hover:border-gray-300'}`}
+      style={{ ...style, zIndex: isSelected ? 10 : isDragging ? 30 : undefined }}
+      onClick={handleBlockClick}
+      onMouseEnter={(e) => (e.currentTarget.style.zIndex = '30')}
+      onMouseLeave={(e) => (e.currentTarget.style.zIndex = isSelected ? '10' : '')}
+      className={`relative group transition-all duration-200 ${
+        isDragging ? 'opacity-40 scale-[0.98]' : ''
+      } ${isOver && !isDragging ? 'ring-2 ring-emerald-400 ring-offset-2' : ''}`}
     >
-      {/* Block Preview */}
-      <div className="p-4 bg-gray-50 rounded-lg">
-        <BlockRenderer block={block} />
-      </div>
+      {/* Drop indicator line */}
+      {isOver && !isDragging && (
+        <div className="absolute -top-1 left-0 right-0 h-1 bg-emerald-500 rounded-full animate-pulse" />
+      )}
 
-      {/* Block Controls */}
+      {/* Block container */}
       <div
-        className={`absolute -top-3 left-4 flex items-center gap-1 ${
-          isSelected || isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        } transition-opacity`}
+        className={`relative border-2 transition-colors duration-150 ${
+          isSelected
+            ? 'border-emerald-500 shadow-lg shadow-emerald-500/20'
+            : 'border-transparent hover:border-gray-300'
+        }`}
       >
-        {/* Drag Handle */}
-        <div
-          {...attributes}
-          {...listeners}
-          className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded shadow-sm cursor-grab"
-        >
-          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-          </svg>
-          <span className="text-xs font-medium text-gray-600">{blockNames[block.type]}</span>
+        {/* Block Preview */}
+        <div className="bg-white overflow-hidden">
+          <BlockRenderer block={block} />
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div
-        className={`absolute -top-3 right-4 flex items-center gap-1 ${
-          isSelected || isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        } transition-opacity`}
-      >
-        <button
-          onClick={handleDuplicate}
-          className="p-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-gray-50"
-          title="Дублировать"
+        {/* Block Controls */}
+        <div
+          className={`absolute -top-4 left-4 z-20 flex items-center gap-2 transition-all duration-200 ${
+            isSelected ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'
+          }`}
         >
-          <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-        </button>
-        <button
-          onClick={handleDelete}
-          className="p-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-red-50 hover:border-red-200"
-          title="Удалить"
+          {/* Drag Handle */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-md cursor-grab active:cursor-grabbing hover:border-emerald-400 hover:shadow-lg transition-all"
+          >
+            <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+            </svg>
+            <span className="text-sm font-medium text-gray-700">{blockNames[block.type]}</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div
+          className={`absolute -top-4 right-4 z-20 flex items-center gap-2 transition-all duration-200 ${
+            isSelected ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'
+          }`}
         >
-          <svg className="w-4 h-4 text-gray-500 hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+          <button
+            onClick={handleDuplicate}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-emerald-50 hover:border-emerald-400 hover:shadow-lg transition-all"
+            title="Дублировать"
+          >
+            <svg className="w-5 h-5 text-gray-500 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span className="text-sm font-medium text-gray-600">Копировать</span>
+          </button>
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-red-50 hover:border-red-400 hover:shadow-lg transition-all"
+            title="Удалить"
+          >
+            <svg className="w-5 h-5 text-gray-500 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span className="text-sm font-medium text-gray-600">Удалить</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -116,12 +139,45 @@ const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
 
     case 'hero':
       return (
-        <div className="p-12 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-center rounded">
+        <div className="p-12 bg-gradient-to-r from-emerald-500 to-purple-600 text-white text-center rounded">
           <h2 className="text-2xl font-bold mb-2">{(props.title as string) || 'Заголовок'}</h2>
           <p className="mb-4">{(props.subtitle as string) || 'Подзаголовок'}</p>
-          <button className="px-6 py-2 bg-white text-blue-600 rounded-lg font-medium">
+          <button className="px-6 py-2 bg-white text-emerald-600 rounded-lg font-medium">
             {(props.buttonText as string) || 'Кнопка'}
           </button>
+        </div>
+      );
+
+    case 'product-card':
+      return (
+        <div className="max-w-xs mx-auto bg-white border rounded-lg overflow-hidden shadow-sm">
+          <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+            <svg className="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div className="p-4">
+            <h3 className="font-medium text-gray-900 mb-1">Название товара</h3>
+            <p className="text-sm text-gray-500 mb-2 line-clamp-2">Описание товара будет здесь</p>
+            {props.showPrice !== false && (
+              <p className="text-lg font-bold text-emerald-600 mb-2">1 990 ₽</p>
+            )}
+            {props.showRating !== false && (
+              <div className="flex items-center gap-1 mb-3">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg key={star} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+                <span className="text-sm text-gray-500 ml-1">(24)</span>
+              </div>
+            )}
+            {props.showAddToCart !== false && (
+              <button className="w-full py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+                В корзину
+              </button>
+            )}
+          </div>
         </div>
       );
 

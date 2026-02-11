@@ -124,7 +124,7 @@ const RegisterPage: React.FC = () => {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-gray-600">Уже есть аккаунт? </span>
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link to="/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
                 Войти
               </Link>
             </div>

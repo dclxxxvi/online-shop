@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Block } from '@shop-builder/shared';
 import { useStoreData } from '@entities/store/model/storeDataStore';
 import { Spinner } from '@shop-builder/shared';
@@ -7,6 +8,7 @@ import { Spinner } from '@shop-builder/shared';
 import { HeaderBlock } from '@widgets/header';
 import { FooterBlock } from '@widgets/footer';
 import { ProductGridBlock } from '@widgets/product-grid';
+import { ProductCardBlock } from '@widgets/product-card';
 import { CartWidget } from '@widgets/cart';
 
 // Checkout
@@ -19,13 +21,26 @@ const getStoreIdFromPath = (): string | null => {
   return match ? match[1] : null;
 };
 
+// Check if we're in preview mode
+const isPreviewMode = (): boolean => {
+  return window.location.pathname.includes('/preview/');
+};
+
 interface AppProps {
   subdomain?: string;
 }
 
 export const App: React.FC<AppProps> = ({ subdomain }) => {
+  const navigate = useNavigate();
   const storeId = useMemo(() => getStoreIdFromPath(), []);
+  const isPreview = useMemo(() => isPreviewMode(), []);
   const { store, page, isLoading, error, fetchStoreData, fetchStoreBySubdomain } = useStoreData();
+
+  const handleNavigateToEditor = () => {
+    if (storeId) {
+      navigate(`/editor/${storeId}`);
+    }
+  };
 
   useEffect(() => {
     if (subdomain) {
@@ -71,6 +86,15 @@ export const App: React.FC<AppProps> = ({ subdomain }) => {
 
   return (
     <>
+      {/* Preview mode bar */}
+      {isPreview && storeId && (
+        <PreviewBar
+          storeId={storeId}
+          storeName={store.name}
+          onNavigateToEditor={handleNavigateToEditor}
+        />
+      )}
+
       <div className="min-h-screen" style={getThemeStyles(store.theme)}>
         {page.blocks.map((block) => (
           <BlockRenderer key={block.id} block={block} store={store} />
@@ -84,6 +108,62 @@ export const App: React.FC<AppProps> = ({ subdomain }) => {
       <CheckoutForm />
       <OrderSuccess />
     </>
+  );
+};
+
+// Preview mode bar component
+interface PreviewBarProps {
+  storeId: string;
+  storeName: string;
+  onNavigateToEditor: () => void;
+}
+
+const PreviewBar: React.FC<PreviewBarProps> = ({ storeId, storeName, onNavigateToEditor }) => {
+  const handleOpenInNewTab = () => {
+    window.open(window.location.href, '_blank');
+  };
+
+  return (
+    <div
+      style={{ backgroundColor: '#111827', color: '#ffffff' }}
+      className="sticky top-0 z-50 px-4 py-2 flex items-center justify-between shadow-lg"
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <svg className="w-5 h-5" style={{ color: '#34d399' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          <span className="text-sm font-medium">Режим предпросмотра</span>
+        </div>
+        <span style={{ color: '#9ca3af' }}>|</span>
+        <span className="text-sm" style={{ color: '#d1d5db' }}>{storeName}</span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleOpenInNewTab}
+          style={{ color: '#d1d5db' }}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm hover:bg-white/10 rounded transition-colors"
+          title="Открыть в новой вкладке"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          <span className="hidden sm:inline">Новая вкладка</span>
+        </button>
+        <button
+          onClick={onNavigateToEditor}
+          style={{ backgroundColor: '#059669', color: '#ffffff' }}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded font-medium hover:opacity-90 transition-opacity"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
+          <span>Вернуться в редактор</span>
+        </button>
+      </div>
+    </div>
   );
 };
 
@@ -117,7 +197,7 @@ const BlockRenderer: React.FC<BlockRendererProps> = ({ block, store }) => {
       case 'hero':
         return (
           <section
-            className="py-20 px-4 text-center bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+            className="py-20 px-4 text-center bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
             style={{
               backgroundImage: props.backgroundImage ? `url(${props.backgroundImage})` : undefined,
               backgroundSize: 'cover',
@@ -132,7 +212,7 @@ const BlockRenderer: React.FC<BlockRendererProps> = ({ block, store }) => {
                 {(props.subtitle as string) || 'В наш магазин'}
               </p>
               {props.buttonText && (
-                <button className="px-8 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+                <button className="px-8 py-3 bg-white text-emerald-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
                   {props.buttonText as string}
                 </button>
               )}
@@ -142,6 +222,9 @@ const BlockRenderer: React.FC<BlockRendererProps> = ({ block, store }) => {
 
       case 'product-grid':
         return <ProductGridBlock props={props} storeId={store.id} />;
+
+      case 'product-card':
+        return <ProductCardBlock props={props} storeId={store.id} />;
 
       case 'cart':
         // Cart is rendered as a global sidebar widget

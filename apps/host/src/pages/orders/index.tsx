@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useOrderStore } from '@entities/order';
 import { useStoreStore } from '@entities/store';
 import { OrderDetailModal } from '@features/order-detail';
-import { Button, Card, CardContent, Spinner } from '@shop-builder/shared';
+import { Button, Card, CardContent, Spinner, Badge, type BadgeProps } from '@shop-builder/shared';
 import type { Order, OrderStatus } from '@shop-builder/shared';
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -14,12 +14,12 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   CANCELLED: 'Отменён',
 };
 
-const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  CONFIRMED: 'bg-blue-100 text-blue-800',
-  SHIPPED: 'bg-purple-100 text-purple-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
+const STATUS_VARIANTS: Record<OrderStatus, BadgeProps['variant']> = {
+  PENDING: 'warning',
+  CONFIRMED: 'info',
+  SHIPPED: 'secondary',
+  DELIVERED: 'success',
+  CANCELLED: 'destructive',
 };
 
 const OrdersPage: React.FC = () => {
@@ -160,7 +160,7 @@ const OrdersPage: React.FC = () => {
               <Card>
                 <CardContent className="pt-4">
                   <p className="text-sm text-gray-500">В обработке</p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-2xl font-bold text-emerald-600">
                     {orders.filter(o => o.status === 'CONFIRMED' || o.status === 'SHIPPED').length}
                   </p>
                 </CardContent>
@@ -228,11 +228,9 @@ const OrdersPage: React.FC = () => {
                           {formatPrice(order.total)}
                         </td>
                         <td className="px-4 py-4">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[order.status]}`}
-                          >
+                          <Badge variant={STATUS_VARIANTS[order.status]}>
                             {STATUS_LABELS[order.status]}
-                          </span>
+                          </Badge>
                         </td>
                         <td className="px-4 py-4 text-right">
                           <Button

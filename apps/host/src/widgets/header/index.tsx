@@ -10,7 +10,7 @@ export const Header: React.FC = () => {
     <header className="bg-white border-b border-gray-200">
       <div className="px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">S</span>
           </div>
           <span className="text-xl font-bold text-gray-900">Shop Builder</span>

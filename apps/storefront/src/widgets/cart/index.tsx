@@ -78,7 +78,7 @@ export const CartWidget: React.FC = () => {
                     <h3 className="font-medium text-gray-900 truncate">
                       {item.product.name}
                     </h3>
-                    <p className="text-blue-600 font-semibold">
+                    <p className="text-emerald-600 font-semibold">
                       {formatPrice(item.product.price)}
                     </p>
 

@@ -102,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         {/* Quick Add Button */}
         <button
           onClick={() => onAddToCart(product)}
-          className="absolute bottom-2 right-2 bg-blue-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-blue-700"
+          className="absolute bottom-2 right-2 bg-emerald-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-emerald-700"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -117,7 +117,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           <p className="text-sm text-gray-500 mb-2 line-clamp-2">{product.description}</p>
         )}
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-blue-600">{formatPrice(product.price)}</span>
+          <span className="text-lg font-bold text-emerald-600">{formatPrice(product.price)}</span>
           {product.inventory <= 0 && (
             <span className="text-xs text-red-500">Нет в наличии</span>
           )}

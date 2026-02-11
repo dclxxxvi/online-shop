@@ -112,14 +112,13 @@ export const useCartStore = create<CartState>()(
           const orderItems = items.map((item) => ({
             productId: item.product.id,
             name: item.product.name,
-            price: item.product.price,
+            price: Number(item.product.price),
             quantity: item.quantity,
-            image: item.product.images[0],
+            ...(item.product.images[0] && { image: item.product.images[0] }),
           }));
 
           const order = await apiClient.post<Order>(`/stores/${storeId}/orders`, {
             items: orderItems,
-            total: getTotal(),
             customer,
           });
 

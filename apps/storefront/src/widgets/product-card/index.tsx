@@ -113,7 +113,7 @@ export const ProductCardBlock: React.FC<ProductCardBlockProps> = ({ props, store
 
             {showPrice && (
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xl font-bold text-blue-600">{formatPrice(product.price)}</span>
+                <span className="text-xl font-bold text-emerald-600">{formatPrice(product.price)}</span>
                 {product.inventory <= 0 && (
                   <span className="text-xs text-red-500 font-medium">Нет в наличии</span>
                 )}
@@ -140,7 +140,7 @@ export const ProductCardBlock: React.FC<ProductCardBlockProps> = ({ props, store
               <button
                 onClick={() => addItem(product)}
                 disabled={product.inventory <= 0}
-                className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 {product.inventory > 0 ? 'В корзину' : 'Нет в наличии'}
               </button>

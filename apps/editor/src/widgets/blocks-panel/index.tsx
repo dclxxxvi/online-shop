@@ -21,12 +21,27 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ type }) => {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg cursor-grab hover:border-blue-300 hover:shadow-sm transition-all ${
-        isDragging ? 'opacity-50' : ''
+      className={`group flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-grab
+        hover:border-emerald-400 hover:shadow-md hover:bg-emerald-50/50
+        active:scale-95 active:cursor-grabbing
+        transition-all duration-200 ${
+        isDragging ? 'opacity-30 scale-95' : ''
       }`}
     >
-      <div className="text-gray-500">{blockIcons[type]}</div>
-      <span className="text-sm font-medium text-gray-700">{blockNames[type]}</span>
+      <div className={`p-2 rounded-lg transition-colors duration-200 ${
+        isDragging ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500 group-hover:bg-emerald-100 group-hover:text-emerald-600'
+      }`}>
+        {blockIcons[type]}
+      </div>
+      <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">{blockNames[type]}</span>
+      <svg
+        className="w-4 h-4 ml-auto text-gray-300 group-hover:text-emerald-400 transition-colors"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+      </svg>
     </div>
   );
 };

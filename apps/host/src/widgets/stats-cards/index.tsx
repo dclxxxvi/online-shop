@@ -10,11 +10,11 @@ interface StatCardProps {
     value: number;
     isPositive: boolean;
   };
-  color: 'blue' | 'green' | 'purple' | 'orange';
+  color: 'emerald' | 'green' | 'purple' | 'orange';
 }
 
 const colorClasses = {
-  blue: 'bg-blue-50 text-blue-600',
+  emerald: 'bg-emerald-50 text-emerald-600',
   green: 'bg-green-50 text-green-600',
   purple: 'bg-purple-50 text-purple-600',
   orange: 'bg-orange-50 text-orange-600',
@@ -55,7 +55,7 @@ export const StatsCards: React.FC = () => {
       <StatCard
         title="Всего магазинов"
         value={stores.length}
-        color="blue"
+        color="emerald"
         icon={
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
