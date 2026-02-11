@@ -108,6 +108,23 @@ class ApiClient {
     const response = await this.client.delete<T>(url);
     return response.data;
   }
+
+  async presignUpload(files: File[]): Promise<string[]> {
+    const fileMeta = files.map((f) => ({ name: f.name, type: f.type, size: f.size }));
+    const { presignedUrls } = await this.post<{
+      presignedUrls: { uploadUrl: string; fileUrl: string; key: string }[];
+    }>('/upload/presign', { files: fileMeta });
+
+    await Promise.all(
+      presignedUrls.map((entry, i) =>
+        axios.put(entry.uploadUrl, files[i], {
+          headers: { 'Content-Type': files[i].type },
+        }),
+      ),
+    );
+
+    return presignedUrls.map((entry) => entry.fileUrl);
+  }
 }
 
 export const apiClient = new ApiClient();

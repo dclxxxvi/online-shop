@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
   Label,
   Checkbox,
   Spinner,
+  apiClient,
 } from '@shop-builder/shared';
 import type { Product } from '@shop-builder/shared';
 import { useProductStore } from '@entities/product';
@@ -47,6 +48,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const { createProduct, updateProduct, isSaving, error, clearError } = useProductStore();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [imageUrl, setImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!product;
 
@@ -105,6 +108,27 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }));
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      const urls = await apiClient.presignUpload(Array.from(files));
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...urls],
+      }));
+    } catch {
+      // show error in form
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   return (
@@ -175,11 +199,41 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           {/* Images */}
           <div className="space-y-2">
             <Label>Изображения</Label>
+
+            {/* File upload */}
+            <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                multiple
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={isUploading}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {isUploading ? (
+                  <>
+                    <Spinner size="sm" className="mr-2" />
+                    Загрузка...
+                  </>
+                ) : (
+                  'Загрузить файлы'
+                )}
+              </Button>
+            </div>
+
+            {/* URL input */}
             <div className="flex gap-2">
               <Input
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="URL изображения"
+                placeholder="Или вставьте URL изображения"
                 className="flex-1"
               />
               <Button type="button" variant="outline" onClick={handleAddImage}>
