@@ -9,7 +9,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 const PRESIGN_EXPIRES_IN = 600; // 10 minutes
 
-interface PresignedFile {
+export interface PresignedFile {
   uploadUrl: string;
   fileUrl: string;
   key: string;
@@ -19,17 +19,19 @@ interface PresignedFile {
 export class UploadService {
   private s3: S3Client;
   private bucket: string;
-  private region: string;
+  private endpoint: string;
 
   constructor(private config: ConfigService) {
-    this.region = this.config.getOrThrow<string>('AWS_REGION');
-    this.bucket = this.config.getOrThrow<string>('AWS_S3_BUCKET');
+    this.endpoint = this.config.getOrThrow<string>('S3_ENDPOINT');
+    this.bucket = this.config.getOrThrow<string>('S3_BUCKET');
 
     this.s3 = new S3Client({
-      region: this.region,
+      region: this.config.getOrThrow<string>('S3_REGION'),
+      endpoint: this.endpoint,
+      forcePathStyle: true,
       credentials: {
-        accessKeyId: this.config.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
-        secretAccessKey: this.config.getOrThrow<string>('AWS_SECRET_ACCESS_KEY'),
+        accessKeyId: this.config.getOrThrow<string>('S3_ACCESS_KEY'),
+        secretAccessKey: this.config.getOrThrow<string>('S3_SECRET_KEY'),
       },
     });
   }
@@ -65,7 +67,7 @@ export class UploadService {
       expiresIn: PRESIGN_EXPIRES_IN,
     });
 
-    const fileUrl = `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
+    const fileUrl = `${this.endpoint}/${this.bucket}/${key}`;
 
     return { uploadUrl, fileUrl, key };
   }
