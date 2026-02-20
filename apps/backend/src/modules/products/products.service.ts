@@ -10,11 +10,14 @@ export class ProductsService {
     private storesService: StoresService,
   ) {}
 
-  async findAllByStore(storeId: string, page = 1, limit = 10, categoryId?: string) {
+  async findAllByStore(storeId: string, page = 1, limit = 10, categoryId?: string, search?: string) {
     const skip = (page - 1) * limit;
     const where: any = { storeId, isActive: true };
     if (categoryId) {
       where.categoryId = categoryId;
+    }
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
     }
 
     const [data, total] = await Promise.all([

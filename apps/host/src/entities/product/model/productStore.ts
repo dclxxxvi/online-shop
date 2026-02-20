@@ -31,7 +31,7 @@ interface ProductState {
   currentPage: number;
   total: number;
 
-  fetchProducts: (storeId: string, page?: number) => Promise<void>;
+  fetchProducts: (storeId: string, page?: number, search?: string) => Promise<void>;
   fetchProduct: (storeId: string, id: string) => Promise<void>;
   createProduct: (storeId: string, data: CreateProductData) => Promise<Product>;
   updateProduct: (storeId: string, id: string, data: UpdateProductData) => Promise<Product>;
@@ -50,12 +50,14 @@ export const useProductStore = create<ProductState>((set) => ({
   currentPage: 1,
   total: 0,
 
-  fetchProducts: async (storeId: string, page = 1) => {
+  fetchProducts: async (storeId: string, page = 1, search?: string) => {
     set({ isLoading: true, error: null });
     try {
+      const params: Record<string, unknown> = { page, limit: 10 };
+      if (search) params.search = search;
       const response = await apiClient.get<PaginatedResponse<Product>>(
         `/stores/${storeId}/products`,
-        { page, limit: 10 }
+        params,
       );
       set({
         products: response.data,

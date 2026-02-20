@@ -12,6 +12,7 @@ import {
   apiClient,
 } from '@shop-builder/shared';
 import type { Product } from '@shop-builder/shared';
+import { getResizedImageUrl } from '@shop-builder/shared';
 import { useProductStore } from '@entities/product';
 
 interface ProductFormModalProps {
@@ -246,9 +247,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 {formData.images.map((url, index) => (
                   <div key={index} className="relative group">
                     <img
-                      src={url}
+                      src={getResizedImageUrl(url, 200)}
                       alt={`Product ${index + 1}`}
                       className="w-16 h-16 object-cover rounded-lg border"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
                           'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="%23ccc"><rect width="64" height="64"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="10">Error</text></svg>';

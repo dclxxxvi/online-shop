@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { apiClient, Product, formatPrice, PaginatedResponse } from '@shop-builder/shared';
+import { apiClient, Product, formatPrice, PaginatedResponse, getResizedImageUrl, getImageSrcSet } from '@shop-builder/shared';
 import { useCartStore } from '@entities/cart/model/cartStore';
 
 interface ProductGridBlockProps {
@@ -82,8 +82,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       <div className="relative h-48 bg-gray-100">
         {product.images[0] ? (
           <img
-            src={product.images[0]}
+            src={getResizedImageUrl(product.images[0], 400)}
+            srcSet={getImageSrcSet(product.images[0])}
+            sizes="(max-width: 640px) 50vw, 25vw"
             alt={product.name}
+            loading="lazy"
+            decoding="async"
+            onLoad={(e) => e.currentTarget.classList.add('loaded')}
             className="w-full h-full object-cover"
           />
         ) : (

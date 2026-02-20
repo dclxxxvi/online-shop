@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { apiClient, Product, formatPrice } from '@shop-builder/shared';
+import { apiClient, Product, formatPrice, getResizedImageUrl, getImageSrcSet } from '@shop-builder/shared';
 import { useCartStore } from '@entities/cart/model/cartStore';
 
 interface ProductCardBlockProps {
@@ -86,8 +86,13 @@ export const ProductCardBlock: React.FC<ProductCardBlockProps> = ({ props, store
           <div className="relative h-64 bg-gray-100">
             {product.images[0] ? (
               <img
-                src={product.images[0]}
+                src={getResizedImageUrl(product.images[0], 400)}
+                srcSet={getImageSrcSet(product.images[0])}
+                sizes="(max-width: 640px) 100vw, 400px"
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
+                onLoad={(e) => e.currentTarget.classList.add('loaded')}
                 className="w-full h-full object-cover"
               />
             ) : (

@@ -74,3 +74,28 @@ export function getErrorMessage(error: unknown): string {
   }
   return 'An unknown error occurred';
 }
+
+const API_URL = (typeof window !== 'undefined' && (window as any).__API_URL__) || 'http://localhost:4000/api';
+
+/**
+ * Extract the filename key from a MinIO image URL.
+ * URL format: http://host:port/bucket/products/uuid.ext
+ */
+function extractImageKey(url: string): string | null {
+  const match = url.match(/\/products\/([^/?#]+)/);
+  return match ? match[1] : null;
+}
+
+/** Build a resize URL for a given image URL and width. */
+export function getResizedImageUrl(url: string, width: number): string {
+  const key = extractImageKey(url);
+  if (!key) return url;
+  return `${API_URL}/upload/resize/${key}?w=${width}`;
+}
+
+/** Generate a srcSet string for an image URL. */
+export function getImageSrcSet(url: string, widths: number[] = [200, 400, 800]): string {
+  const key = extractImageKey(url);
+  if (!key) return '';
+  return widths.map((w) => `${API_URL}/upload/resize/${key}?w=${w} ${w}w`).join(', ');
+}

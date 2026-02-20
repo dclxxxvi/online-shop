@@ -16,6 +16,15 @@ import {
   formatPrice,
 } from '@shop-builder/shared';
 
+const parsePx = (value: unknown): number => {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const num = parseFloat(value);
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
+};
+
 export const PropertiesPanel: React.FC = () => {
   const { blocks, selectedBlockId, updateBlock, deleteBlock } = useEditorStore();
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
@@ -38,9 +47,20 @@ export const PropertiesPanel: React.FC = () => {
     );
   }
 
+  const desktop = selectedBlock.styles?.desktop || {};
+
   const handlePropChange = (key: string, value: unknown) => {
     updateBlock(selectedBlock.id, {
       props: { ...selectedBlock.props, [key]: value },
+    });
+  };
+
+  const handleStyleChange = (key: string, value: number) => {
+    updateBlock(selectedBlock.id, {
+      styles: {
+        ...selectedBlock.styles,
+        desktop: { ...desktop, [key]: value },
+      },
     });
   };
 
@@ -60,24 +80,28 @@ export const PropertiesPanel: React.FC = () => {
           </div>
         </div>
 
-        {/* Style Settings */}
+        {/* Padding Settings */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Отступы</h3>
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Внутренние отступы (padding)</h3>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <Label htmlFor="paddingTop">Сверху</Label>
               <Input
                 id="paddingTop"
                 type="number"
-                value={(selectedBlock.styles.desktop.paddingTop as string) || '0'}
-                onChange={(e) =>
-                  updateBlock(selectedBlock.id, {
-                    styles: {
-                      ...selectedBlock.styles,
-                      desktop: { ...selectedBlock.styles.desktop, paddingTop: `${e.target.value}px` },
-                    },
-                  })
-                }
+                min={0}
+                value={parsePx(desktop.paddingTop)}
+                onChange={(e) => handleStyleChange('paddingTop', Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="paddingRight">Справа</Label>
+              <Input
+                id="paddingRight"
+                type="number"
+                min={0}
+                value={parsePx(desktop.paddingRight)}
+                onChange={(e) => handleStyleChange('paddingRight', Number(e.target.value))}
               />
             </div>
             <div className="space-y-1">
@@ -85,15 +109,62 @@ export const PropertiesPanel: React.FC = () => {
               <Input
                 id="paddingBottom"
                 type="number"
-                value={(selectedBlock.styles.desktop.paddingBottom as string) || '0'}
-                onChange={(e) =>
-                  updateBlock(selectedBlock.id, {
-                    styles: {
-                      ...selectedBlock.styles,
-                      desktop: { ...selectedBlock.styles.desktop, paddingBottom: `${e.target.value}px` },
-                    },
-                  })
-                }
+                min={0}
+                value={parsePx(desktop.paddingBottom)}
+                onChange={(e) => handleStyleChange('paddingBottom', Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="paddingLeft">Слева</Label>
+              <Input
+                id="paddingLeft"
+                type="number"
+                min={0}
+                value={parsePx(desktop.paddingLeft)}
+                onChange={(e) => handleStyleChange('paddingLeft', Number(e.target.value))}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Margin Settings */}
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Внешние отступы (margin)</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label htmlFor="marginTop">Сверху</Label>
+              <Input
+                id="marginTop"
+                type="number"
+                value={parsePx(desktop.marginTop)}
+                onChange={(e) => handleStyleChange('marginTop', Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="marginRight">Справа</Label>
+              <Input
+                id="marginRight"
+                type="number"
+                value={parsePx(desktop.marginRight)}
+                onChange={(e) => handleStyleChange('marginRight', Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="marginBottom">Снизу</Label>
+              <Input
+                id="marginBottom"
+                type="number"
+                value={parsePx(desktop.marginBottom)}
+                onChange={(e) => handleStyleChange('marginBottom', Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="marginLeft">Слева</Label>
+              <Input
+                id="marginLeft"
+                type="number"
+                value={parsePx(desktop.marginLeft)}
+                onChange={(e) => handleStyleChange('marginLeft', Number(e.target.value))}
               />
             </div>
           </div>

@@ -11,6 +11,7 @@ import {
   CardContent,
   Spinner,
   Badge,
+  Input,
   formatPrice,
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  getResizedImageUrl,
 } from '@shop-builder/shared';
 import type { Product } from '@shop-builder/shared';
 
@@ -32,15 +34,22 @@ const ProductsPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     if (storeId) {
-      fetchProducts(storeId);
+      fetchProducts(storeId, 1, debouncedSearch || undefined);
       if (!currentStore || currentStore.id !== storeId) {
         fetchStore(storeId);
       }
     }
-  }, [storeId, fetchProducts, fetchStore, currentStore]);
+  }, [storeId, debouncedSearch, fetchProducts, fetchStore, currentStore]);
 
   const handleAddProduct = () => {
     setEditingProduct(null);
@@ -99,6 +108,24 @@ const ProductsPage: React.FC = () => {
             </Button>
           </div>
 
+          {/* Search */}
+          <div className="mb-6 relative">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Поиск по названию..."
+              className="pl-10 max-w-sm"
+            />
+          </div>
+
           {/* Products List */}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -113,13 +140,22 @@ const ProductsPage: React.FC = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={1.5}
-                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                      d={debouncedSearch
+                        ? "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        : "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                      }
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Нет товаров</h3>
-                <p className="text-gray-600 mb-6">Добавьте первый товар в ваш магазин</p>
-                <Button onClick={handleAddProduct}>Добавить товар</Button>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {debouncedSearch ? 'Ничего не найдено' : 'Нет товаров'}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {debouncedSearch
+                    ? `По запросу «${debouncedSearch}» товаров не найдено`
+                    : 'Добавьте первый товар в ваш магазин'}
+                </p>
+                {!debouncedSearch && <Button onClick={handleAddProduct}>Добавить товар</Button>}
               </CardContent>
             </Card>
           ) : (
@@ -153,8 +189,11 @@ const ProductsPage: React.FC = () => {
                             {product.images?.[0] ? (
                               <img
                                 className="h-12 w-12 rounded-lg object-cover"
-                                src={product.images[0]}
+                                src={getResizedImageUrl(product.images[0], 200)}
                                 alt={product.name}
+                                loading="lazy"
+                                decoding="async"
+                                onLoad={(e) => e.currentTarget.classList.add('loaded')}
                               />
                             ) : (
                               <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">

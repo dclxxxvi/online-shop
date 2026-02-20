@@ -24,12 +24,14 @@ export class ProductsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('categoryId') categoryId?: string,
+    @Query('search') search?: string,
   ) {
     return this.productsService.findAllByStore(
       storeId,
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 10,
       categoryId,
+      search,
     );
   }
 

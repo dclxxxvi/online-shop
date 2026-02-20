@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCartStore } from '@entities/cart/model/cartStore';
-import { formatPrice, Button } from '@shop-builder/shared';
+import { formatPrice, Button, getResizedImageUrl } from '@shop-builder/shared';
 
 export const CartWidget: React.FC = () => {
   const { items, isOpen, setCartOpen, removeItem, updateQuantity, getTotal, clearCart } =
@@ -66,8 +66,11 @@ export const CartWidget: React.FC = () => {
                   <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0">
                     {item.product.images[0] && (
                       <img
-                        src={item.product.images[0]}
+                        src={getResizedImageUrl(item.product.images[0], 200)}
                         alt={item.product.name}
+                        loading="lazy"
+                        decoding="async"
+                        onLoad={(e) => e.currentTarget.classList.add('loaded')}
                         className="w-full h-full object-cover rounded-lg"
                       />
                     )}
