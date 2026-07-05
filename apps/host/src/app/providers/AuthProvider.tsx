@@ -3,29 +3,29 @@ import { useAuthStore } from '@entities/user/model/authStore';
 import { apiClient } from '@shop-builder/shared';
 
 interface AuthProviderProps {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const { checkAuth, isLoading } = useAuthStore();
-  const initialized = useRef(false);
+	const { checkAuth, isLoading } = useAuthStore();
+	const initialized = useRef(false);
 
-  useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
+	useEffect(() => {
+		if (initialized.current) return;
+		initialized.current = true;
 
-    // Initialize API client with stored tokens
-    apiClient.loadTokensFromStorage();
-    checkAuth();
-  }, []);
+		// Initialize API client with stored tokens
+		apiClient.loadTokensFromStorage();
+		checkAuth();
+	}, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
-      </div>
-    );
-  }
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center h-screen">
+				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
+			</div>
+		);
+	}
 
-  return <>{children}</>;
+	return <>{children}</>;
 };

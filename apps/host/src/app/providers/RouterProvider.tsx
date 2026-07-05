@@ -14,90 +14,90 @@ const EditorApp = lazy(() => import('editor/App'));
 const StorefrontApp = lazy(() => import('storefront/App'));
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+	if (!isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
-  return <>{children}</>;
+	return <>{children}</>;
 };
 
 const LoadingFallback = () => (
-  <div className="flex items-center justify-center h-screen">
-    <Spinner size="lg" />
-  </div>
+	<div className="flex items-center justify-center h-screen">
+		<Spinner size="lg" />
+	</div>
 );
 
 export const RouterProvider: React.FC = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Auth routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+	return (
+		<BrowserRouter>
+			<Routes>
+				{/* Auth routes */}
+				<Route path="/login" element={<LoginPage />} />
+				<Route path="/register" element={<RegisterPage />} />
 
-        {/* Protected routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
+				{/* Protected routes */}
+				<Route
+					path="/"
+					element={
+						<ProtectedRoute>
+							<DashboardPage />
+						</ProtectedRoute>
+					}
+				/>
 
-        {/* Products page */}
-        <Route
-          path="/stores/:storeId/products"
-          element={
-            <ProtectedRoute>
-              <ProductsPage />
-            </ProtectedRoute>
-          }
-        />
+				{/* Products page */}
+				<Route
+					path="/stores/:storeId/products"
+					element={
+						<ProtectedRoute>
+							<ProductsPage />
+						</ProtectedRoute>
+					}
+				/>
 
-        {/* Orders page */}
-        <Route
-          path="/stores/:storeId/orders"
-          element={
-            <ProtectedRoute>
-              <OrdersPage />
-            </ProtectedRoute>
-          }
-        />
+				{/* Orders page */}
+				<Route
+					path="/stores/:storeId/orders"
+					element={
+						<ProtectedRoute>
+							<OrdersPage />
+						</ProtectedRoute>
+					}
+				/>
 
-        {/* Editor remote app */}
-        <Route
-          path="/editor/*"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingFallback />}>
-                <EditorApp />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
+				{/* Editor remote app */}
+				<Route
+					path="/editor/*"
+					element={
+						<ProtectedRoute>
+							<Suspense fallback={<LoadingFallback />}>
+								<EditorApp />
+							</Suspense>
+						</ProtectedRoute>
+					}
+				/>
 
-        {/* Storefront remote app (for preview) */}
-        <Route
-          path="/preview/*"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<LoadingFallback />}>
-                <StorefrontApp />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
+				{/* Storefront remote app (for preview) */}
+				<Route
+					path="/preview/*"
+					element={
+						<ProtectedRoute>
+							<Suspense fallback={<LoadingFallback />}>
+								<StorefrontApp />
+							</Suspense>
+						</ProtectedRoute>
+					}
+				/>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+				{/* Fallback */}
+				<Route path="*" element={<Navigate to="/" replace />} />
+			</Routes>
+		</BrowserRouter>
+	);
 };

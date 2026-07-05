@@ -1,0 +1,10 @@
+{
+  "name": "@shop-builder/eslint-config",
+  "version": "1.0.0",
+  "private": "true",
+  "exports": {
+    "./base": "./base.config.mjs",
+    "./react": "./react.config.mjs",
+    "./nest": "./nest.config.mjs"
+  }
+}

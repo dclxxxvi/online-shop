@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+.turbo
+.next
+storybook-static
+*.log
+package-lock.json

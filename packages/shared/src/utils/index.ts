@@ -2,100 +2,101 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs));
+	return twMerge(clsx(inputs));
 }
 
 export function generateId(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 export function formatPrice(price: number, currency = 'RUB'): string {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency,
-  }).format(price);
+	return new Intl.NumberFormat('ru-RU', {
+		style: 'currency',
+		currency,
+	}).format(price);
 }
 
 export function formatDate(date: string | Date): string {
-  return new Intl.DateTimeFormat('ru-RU', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date(date));
+	return new Intl.DateTimeFormat('ru-RU', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	}).format(new Date(date));
 }
 
 export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+	return text
+		.toLowerCase()
+		.replace(/[^\w\s-]/g, '')
+		.replace(/[\s_-]+/g, '-')
+		.replace(/^-+|-+$/g, '');
 }
 
 export function debounce<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  wait: number
+	func: T,
+	wait: number,
 ): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+	let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  return (...args: Parameters<T>) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => func(...args), wait);
-  };
+	return (...args: Parameters<T>) => {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+		timeoutId = setTimeout(() => func(...args), wait);
+	};
 }
 
 export function throttle<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  limit: number
+	func: T,
+	limit: number,
 ): (...args: Parameters<T>) => void {
-  let inThrottle = false;
+	let inThrottle = false;
 
-  return (...args: Parameters<T>) => {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
-    }
-  };
+	return (...args: Parameters<T>) => {
+		if (!inThrottle) {
+			func(...args);
+			inThrottle = true;
+			setTimeout(() => (inThrottle = false), limit);
+		}
+	};
 }
 
 export function deepClone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
+	return JSON.parse(JSON.stringify(obj));
 }
 
 export function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  if (typeof error === 'string') {
-    return error;
-  }
-  return 'An unknown error occurred';
+	if (error instanceof Error) {
+		return error.message;
+	}
+	if (typeof error === 'string') {
+		return error;
+	}
+	return 'An unknown error occurred';
 }
 
-const API_URL = (typeof window !== 'undefined' && (window as any).__API_URL__) || 'http://localhost:4000/api';
+const API_URL =
+	(typeof window !== 'undefined' && (window as any).__API_URL__) || 'http://localhost:4000/api';
 
 /**
  * Extract the filename key from a MinIO image URL.
  * URL format: http://host:port/bucket/products/uuid.ext
  */
 function extractImageKey(url: string): string | null {
-  const match = url.match(/\/products\/([^/?#]+)/);
-  return match ? match[1] : null;
+	const match = url.match(/\/products\/([^/?#]+)/);
+	return match ? match[1] : null;
 }
 
 /** Build a resize URL for a given image URL and width. */
 export function getResizedImageUrl(url: string, width: number): string {
-  const key = extractImageKey(url);
-  if (!key) return url;
-  return `${API_URL}/upload/resize/${key}?w=${width}`;
+	const key = extractImageKey(url);
+	if (!key) return url;
+	return `${API_URL}/upload/resize/${key}?w=${width}`;
 }
 
 /** Generate a srcSet string for an image URL. */
 export function getImageSrcSet(url: string, widths: number[] = [200, 400, 800]): string {
-  const key = extractImageKey(url);
-  if (!key) return '';
-  return widths.map((w) => `${API_URL}/upload/resize/${key}?w=${w} ${w}w`).join(', ');
+	const key = extractImageKey(url);
+	if (!key) return '';
+	return widths.map((w) => `${API_URL}/upload/resize/${key}?w=${w} ${w}w`).join(', ');
 }

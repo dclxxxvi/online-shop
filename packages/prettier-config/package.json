@@ -1,0 +1,8 @@
+{
+  "name": "@shop-builder/prettier-config",
+  "private": true,
+  "peerDependencies": {
+    "prettier": "^3.6.0"
+  },
+  "exports": "./index.mjs"
+}

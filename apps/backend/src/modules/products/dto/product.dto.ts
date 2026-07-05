@@ -2,67 +2,67 @@ import { IsString, IsOptional, IsNumber, IsArray, IsBoolean, Min } from 'class-v
 import { Type } from 'class-transformer';
 
 export class CreateProductDto {
-  @IsString()
-  name: string;
+	@IsString()
+	name: string;
 
-  @IsString()
-  @IsOptional()
-  description?: string;
+	@IsString()
+	@IsOptional()
+	description?: string;
 
-  @IsNumber()
-  @Min(0)
-  @Type(() => Number)
-  price: number;
+	@IsNumber()
+	@Min(0)
+	@Type(() => Number)
+	price: number;
 
-  @IsArray()
-  @IsOptional()
-  images?: string[];
+	@IsArray()
+	@IsOptional()
+	images?: string[];
 
-  @IsNumber()
-  @IsOptional()
-  @Min(0)
-  @Type(() => Number)
-  inventory?: number;
+	@IsNumber()
+	@IsOptional()
+	@Min(0)
+	@Type(() => Number)
+	inventory?: number;
 
-  @IsString()
-  @IsOptional()
-  categoryId?: string;
+	@IsString()
+	@IsOptional()
+	categoryId?: string;
 
-  @IsBoolean()
-  @IsOptional()
-  isActive?: boolean;
+	@IsBoolean()
+	@IsOptional()
+	isActive?: boolean;
 }
 
 export class UpdateProductDto {
-  @IsString()
-  @IsOptional()
-  name?: string;
+	@IsString()
+	@IsOptional()
+	name?: string;
 
-  @IsString()
-  @IsOptional()
-  description?: string;
+	@IsString()
+	@IsOptional()
+	description?: string;
 
-  @IsNumber()
-  @IsOptional()
-  @Min(0)
-  @Type(() => Number)
-  price?: number;
+	@IsNumber()
+	@IsOptional()
+	@Min(0)
+	@Type(() => Number)
+	price?: number;
 
-  @IsArray()
-  @IsOptional()
-  images?: string[];
+	@IsArray()
+	@IsOptional()
+	images?: string[];
 
-  @IsNumber()
-  @IsOptional()
-  @Min(0)
-  @Type(() => Number)
-  inventory?: number;
+	@IsNumber()
+	@IsOptional()
+	@Min(0)
+	@Type(() => Number)
+	inventory?: number;
 
-  @IsString()
-  @IsOptional()
-  categoryId?: string;
+	@IsString()
+	@IsOptional()
+	categoryId?: string;
 
-  @IsBoolean()
-  @IsOptional()
-  isActive?: boolean;
+	@IsBoolean()
+	@IsOptional()
+	isActive?: boolean;
 }
